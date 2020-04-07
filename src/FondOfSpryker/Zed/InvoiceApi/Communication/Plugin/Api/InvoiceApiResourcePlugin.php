@@ -3,49 +3,51 @@
 namespace FondOfSpryker\Zed\InvoiceApi\Communication\Plugin\Api;
 
 use FondOfSpryker\Zed\InvoiceApi\InvoiceApiConfig;
+use Generated\Shared\Transfer\ApiCollectionTransfer;
 use Generated\Shared\Transfer\ApiDataTransfer;
+use Generated\Shared\Transfer\ApiItemTransfer;
 use Generated\Shared\Transfer\ApiRequestTransfer;
 use Spryker\Zed\Api\ApiConfig;
+use Spryker\Zed\Api\Business\Exception\ApiDispatchingException;
 use Spryker\Zed\Api\Dependency\Plugin\ApiResourcePluginInterface;
 use Spryker\Zed\Kernel\Communication\AbstractPlugin;
 
 /**
- * @method \FondOfSpryker\Zed\InvoiceApi\Business\InvoiceApiFacadeInterface getFacade()
- * @method \FondOfSpryker\Zed\InvoiceApi\Business\InvocieApiBusinessFactory getFactory()
+ * @method \FondOfSpryker\Zed\InvoiceApi\Business\InvoiceApiFacade getFacade()
  */
 class InvoiceApiResourcePlugin extends AbstractPlugin implements ApiResourcePluginInterface
 {
     /**
-     * @param int $id
+     * @param int $idInvoice
      *
-     * @throws \RuntimeException
+     * @throws \Spryker\Zed\Api\Business\Exception\ApiDispatchingException
      *
-     * @return void
+     * @return \Generated\Shared\Transfer\ApiItemTransfer
      */
-    public function get($id)
+    public function get($idInvoice): ApiItemTransfer
     {
-        throw new RuntimeException('Add action not implemented on core level', ApiConfig::HTTP_CODE_NOT_FOUND);
+        throw new ApiDispatchingException('Add method is not implemented yet.', ApiConfig::HTTP_CODE_NOT_FOUND);
     }
 
     /**
-     * @param int $idStock
+     * @param int $idInvoice
+     * @param \Generated\Shared\Transfer\ApiDataTransfer $apiDataTransfer
+     *
+     * @throws \Spryker\Zed\Api\Business\Exception\ApiDispatchingException
+     *
+     * @return \Generated\Shared\Transfer\ApiItemTransfer
+     */
+    public function update($idInvoice, ApiDataTransfer $apiDataTransfer): ApiItemTransfer
+    {
+        throw new ApiDispatchingException('Update method is not implemented yet.', ApiConfig::HTTP_CODE_NOT_FOUND);
+    }
+
+    /**
      * @param \Generated\Shared\Transfer\ApiDataTransfer $apiDataTransfer
      *
      * @return \Generated\Shared\Transfer\ApiItemTransfer
      */
-    public function update($idStock, ApiDataTransfer $apiDataTransfer)
-    {
-        throw new RuntimeException('Update action not implemented on core level', ApiConfig::HTTP_CODE_NOT_FOUND);
-    }
-
-    /**
-     * @param \Generated\Shared\Transfer\ApiDataTransfer $apiDataTransfer
-     *
-     * @throws \RuntimeException
-     *
-     * @return void
-     */
-    public function add(ApiDataTransfer $apiDataTransfer)
+    public function add(ApiDataTransfer $apiDataTransfer): ApiItemTransfer
     {
         return $this->getFacade()->addInvoice($apiDataTransfer);
     }
@@ -53,33 +55,31 @@ class InvoiceApiResourcePlugin extends AbstractPlugin implements ApiResourcePlug
     /**
      * @param int $idStock
      *
-     * @throws \RuntimeException
+     * @throws \Spryker\Zed\Api\Business\Exception\ApiDispatchingException
      *
-     * @return void
+     * @return \Generated\Shared\Transfer\ApiItemTransfer
      */
-    public function remove($idStock)
+    public function remove($idStock): ApiItemTransfer
     {
-        throw new RuntimeException('Remove action not implemented on core level', ApiConfig::HTTP_CODE_NOT_FOUND);
+        throw new ApiDispatchingException('Remove method not implemented on core level', ApiConfig::HTTP_CODE_NOT_FOUND);
     }
 
     /**
      * @param \Generated\Shared\Transfer\ApiRequestTransfer $apiRequestTransfer
      *
-     * @throws \RuntimeException
+     * @throws \Spryker\Zed\Api\Business\Exception\ApiDispatchingException
      *
-     * @return void
+     * @return \Generated\Shared\Transfer\ApiCollectionTransfer
      */
-    public function find(ApiRequestTransfer $apiRequestTransfer)
+    public function find(ApiRequestTransfer $apiRequestTransfer): ApiCollectionTransfer
     {
-        throw new RuntimeException('Find action not implemented on core level', ApiConfig::HTTP_CODE_NOT_FOUND);
+        throw new ApiDispatchingException('Find method not implemented on core level', ApiConfig::HTTP_CODE_NOT_FOUND);
     }
 
     /**
-     * @api
-     *
      * @return string
      */
-    public function getResourceName()
+    public function getResourceName(): string
     {
         return InvoiceApiConfig::RESOURCE_INVOICE;
     }

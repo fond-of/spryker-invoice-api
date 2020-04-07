@@ -11,26 +11,8 @@ class TransferMapper implements TransferMapperInterface
      *
      * @return \Generated\Shared\Transfer\InvoiceTransfer
      */
-    public function toTransfer(array $data)
+    public function toTransfer(array $data): InvoiceTransfer
     {
-        $invoiceTransfer = new InvoiceTransfer();
-        $invoiceTransfer->fromArray($data, true);
-
-        return $invoiceTransfer;
-    }
-
-    /**
-     * @param array $data
-     *
-     * @return \Generated\Shared\Transfer\InvoiceTransfer[]
-     */
-    public function toTransferCollection(array $data)
-    {
-        $transferList = [];
-        foreach ($data as $itemData) {
-            $transferList[] = $this->toTransfer($itemData);
-        }
-
-        return $transferList;
+        return (new InvoiceTransfer())->fromArray($data, true);
     }
 }

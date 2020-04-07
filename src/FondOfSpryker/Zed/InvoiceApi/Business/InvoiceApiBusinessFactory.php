@@ -2,10 +2,14 @@
 
 namespace FondOfSpryker\Zed\InvoiceApi\Business;
 
-use FondOfSpryker\Zed\InvoiceApi\Business\Mapper\EntityMapper;
 use FondOfSpryker\Zed\InvoiceApi\Business\Mapper\TransferMapper;
+use FondOfSpryker\Zed\InvoiceApi\Business\Mapper\TransferMapperInterface;
 use FondOfSpryker\Zed\InvoiceApi\Business\Model\InvoiceApi;
+use FondOfSpryker\Zed\InvoiceApi\Business\Model\InvoiceApiInterface;
 use FondOfSpryker\Zed\InvoiceApi\Business\Model\Validator\InvoiceApiValidator;
+use FondOfSpryker\Zed\InvoiceApi\Business\Model\Validator\InvoiceApiValidatorInterface;
+use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeInterface;
+use FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerInterface;
 use FondOfSpryker\Zed\InvoiceApi\InvoiceApiDependencyProvider;
 use Spryker\Zed\Kernel\Business\AbstractBusinessFactory;
 
@@ -17,62 +21,44 @@ class InvoiceApiBusinessFactory extends AbstractBusinessFactory
     /**
      * @return \FondOfSpryker\Zed\InvoiceApi\Business\Model\InvoiceApiInterface
      */
-    public function createInvoiceApi()
+    public function createInvoiceApi(): InvoiceApiInterface
     {
         return new InvoiceApi(
             $this->getApiQueryContainer(),
-            $this->createEntityMapper(),
             $this->createTransferMapper(),
-            $this->getInvoiceFacade(),
-            $this->getProductFacade()
+            $this->getInvoiceFacade()
         );
     }
 
     /**
-     * @return \FondOfSpryker\Zed\InvoiceApi\Business\Mapper\EntityMapper
+     * @return \FondOfSpryker\Zed\InvoiceApi\Business\Mapper\TransferMapperInterface
      */
-    public function createEntityMapper()
-    {
-        return new EntityMapper();
-    }
-
-    /**
-     * @return \FondOfSpryker\Zed\InvoiceApi\Business\Mapper\TransferMapper
-     */
-    public function createTransferMapper()
+    protected function createTransferMapper(): TransferMapperInterface
     {
         return new TransferMapper();
     }
 
     /**
-     * @return \FondOfSpryker\Zed\InvoiceApi\Business\Model\Validator\InvoiceApiValidator
+     * @return \FondOfSpryker\Zed\InvoiceApi\Business\Model\Validator\InvoiceApiValidatorInterface
      */
-    public function createInvoiceApiValidator()
+    public function createInvoiceApiValidator(): InvoiceApiValidatorInterface
     {
         return new InvoiceApiValidator();
     }
 
     /**
-     * @return \FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiInterface
+     * @return \FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerInterface
      */
-    protected function getApiQueryContainer()
+    protected function getApiQueryContainer(): InvoiceApiToApiQueryContainerInterface
     {
         return $this->getProvidedDependency(InvoiceApiDependencyProvider::QUERY_CONTAINER_API);
     }
 
     /**
-     * @return \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceInterface
+     * @return \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeInterface
      */
-    protected function getInvoiceFacade()
+    protected function getInvoiceFacade(): InvoiceApiToInvoiceFacadeInterface
     {
-        return $this->getProvidedDependency(InvoiceApiDependencyProvider::FACADE_INVOICE);
-    }
-
-    /**
-     * @return \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToProductInterface
-     */
-    protected function getProductFacade()
-    {
-        return $this->getProvidedDependency(InvoiceApiDependencyProvider::FACADE_PRODUCT);
+        return $this->getProvidedDependency(InvoiceApiDependencyProvider::FACADE_CREDIT_MEMO);
     }
 }

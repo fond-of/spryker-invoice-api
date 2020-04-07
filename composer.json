@@ -10,15 +10,11 @@
     {
       "name": "Jozsef Geng",
       "email": "gengjozsef86@gmail.com"
-    },
-    {
-      "name": "Markus Nörenberg",
-      "email": "noerenberg.markus@gmail.com"
     }
   ],
   "require": {
     "php": ">=7.1",
-    "fond-of-spryker/invoice": "*"
+    "fond-of-spryker/invoice": "dev-feature/paypal-refund"
   },
   "require-dev": {
     "spryker/code-sniffer": "^0.11",
