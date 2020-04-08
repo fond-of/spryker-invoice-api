@@ -4,11 +4,12 @@ namespace FondOfSpryker\Zed\InvoiceApi\Business;
 
 use Generated\Shared\Transfer\ApiDataTransfer;
 use Generated\Shared\Transfer\ApiItemTransfer;
+use Spryker\Zed\Kernel\Business\AbstractFacade;
 
 /**
  * @method \FondOfSpryker\Zed\InvoiceApi\Business\InvoiceApiBusinessFactory getFactory()
  */
-class InvoiceApiFacade implements InvoiceApiFacadeInterface
+class InvoiceApiFacade extends AbstractFacade implements InvoiceApiFacadeInterface
 {
     /**
      * {@inheritdoc}
