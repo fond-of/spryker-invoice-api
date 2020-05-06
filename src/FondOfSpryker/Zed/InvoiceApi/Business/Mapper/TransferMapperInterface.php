@@ -2,6 +2,8 @@
 
 namespace FondOfSpryker\Zed\InvoiceApi\Business\Mapper;
 
+use Generated\Shared\Transfer\InvoiceTransfer;
+
 interface TransferMapperInterface
 {
     /**
@@ -9,12 +11,5 @@ interface TransferMapperInterface
      *
      * @return \Generated\Shared\Transfer\InvoiceTransfer
      */
-    public function toTransfer(array $data);
-
-    /**
-     * @param array $invoiceEntityCollection
-     *
-     * @return \Generated\Shared\Transfer\InvoiceTransfer[]
-     */
-    public function toTransferCollection(array $invoiceEntityCollection);
+    public function toTransfer(array $data): InvoiceTransfer;
 }

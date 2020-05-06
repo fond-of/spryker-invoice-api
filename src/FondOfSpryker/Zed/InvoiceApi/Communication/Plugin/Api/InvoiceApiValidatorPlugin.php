@@ -8,17 +8,14 @@ use Spryker\Zed\Api\Dependency\Plugin\ApiValidatorPluginInterface;
 use Spryker\Zed\Kernel\Communication\AbstractPlugin;
 
 /**
- * @method \FondOfSpryker\Zed\InvoiceApi\Business\InvoiceApiFacadeInterface getFacade()
- * @method \FondOfSpryker\Zed\InvoiceApi\Business\InvoiceApiBusinessFactory getFactory()
+ * @method \FondOfSpryker\Zed\InvoiceApi\Business\InvoiceApiFacade getFacade()
  */
 class InvoiceApiValidatorPlugin extends AbstractPlugin implements ApiValidatorPluginInterface
 {
     /**
-     * @api
-     *
      * @return string
      */
-    public function getResourceName()
+    public function getResourceName(): string
     {
         return InvoiceApiConfig::RESOURCE_INVOICE;
     }
@@ -28,7 +25,7 @@ class InvoiceApiValidatorPlugin extends AbstractPlugin implements ApiValidatorPl
      *
      * @return \Generated\Shared\Transfer\ApiValidationErrorTransfer[]
      */
-    public function validate(ApiDataTransfer $apiDataTransfer)
+    public function validate(ApiDataTransfer $apiDataTransfer): array
     {
         return $this->getFacade()->validate($apiDataTransfer);
     }

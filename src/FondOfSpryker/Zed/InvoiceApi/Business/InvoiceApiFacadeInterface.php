@@ -3,10 +3,8 @@
 namespace FondOfSpryker\Zed\InvoiceApi\Business;
 
 use Generated\Shared\Transfer\ApiDataTransfer;
+use Generated\Shared\Transfer\ApiItemTransfer;
 
-/**
- * @method \FondOfSpryker\Zed\InvoiceApi\Business\InvoiceApiBusinessFactory getFactory()
- */
 interface InvoiceApiFacadeInterface
 {
     /**
@@ -18,7 +16,7 @@ interface InvoiceApiFacadeInterface
      *
      * @return \Generated\Shared\Transfer\ApiItemTransfer
      */
-    public function addInvoice(ApiDataTransfer $apiDataTransfer);
+    public function addInvoice(ApiDataTransfer $apiDataTransfer): ApiItemTransfer;
 
     /**
      * Specification:
@@ -30,5 +28,5 @@ interface InvoiceApiFacadeInterface
      *
      * @return array
      */
-    public function validate(ApiDataTransfer $apiDataTransfer);
+    public function validate(ApiDataTransfer $apiDataTransfer): array;
 }

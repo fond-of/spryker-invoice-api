@@ -2,33 +2,27 @@
 
 namespace FondOfSpryker\Zed\InvoiceApi;
 
-use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceBridge;
-use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToProductBridge;
-use FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiBridge;
+use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeBridge;
+use FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerBridge;
 use Spryker\Zed\Kernel\AbstractBundleDependencyProvider;
 use Spryker\Zed\Kernel\Container;
 
 class InvoiceApiDependencyProvider extends AbstractBundleDependencyProvider
 {
-    const QUERY_CONTAINER_API = 'QUERY_CONTAINER_API';
-    const QUERY_CONTAINER = 'QUERY_CONTAINER';
-
-    const FACADE_PRODUCT = 'FACADE_PRODUCT';
-    const FACADE_INVOICE = 'FACADE_INVOICE';
+    public const QUERY_CONTAINER_API = 'QUERY_CONTAINER_API';
+    public const FACADE_CREDIT_MEMO = 'FACADE_CREDIT_MEMO';
 
     /**
      * @param \Spryker\Zed\Kernel\Container $container
      *
      * @return \Spryker\Zed\Kernel\Container
      */
-    public function provideBusinessLayerDependencies(Container $container)
+    public function provideBusinessLayerDependencies(Container $container): Container
     {
         $container = parent::provideBusinessLayerDependencies($container);
 
-        $container = $this->provideApiQueryContainer($container);
-        $container = $this->provideQueryContainer($container);
-        $container = $this->provideCreditmemoFacade($container);
-        $container = $this->provideProductFacade($container);
+        $container = $this->addApiQueryContainer($container);
+        $container = $this->addInvoiceFacade($container);
 
         return $container;
     }
@@ -38,10 +32,10 @@ class InvoiceApiDependencyProvider extends AbstractBundleDependencyProvider
      *
      * @return \Spryker\Zed\Kernel\Container
      */
-    protected function provideApiQueryContainer(Container $container)
+    protected function addApiQueryContainer(Container $container): Container
     {
-        $container[static::QUERY_CONTAINER_API] = function (Container $container) {
-            return new InvoiceApiToApiBridge($container->getLocator()->api()->queryContainer());
+        $container[static::QUERY_CONTAINER_API] = static function (Container $container) {
+            return new InvoiceApiToApiQueryContainerBridge($container->getLocator()->api()->queryContainer());
         };
 
         return $container;
@@ -52,36 +46,12 @@ class InvoiceApiDependencyProvider extends AbstractBundleDependencyProvider
      *
      * @return \Spryker\Zed\Kernel\Container
      */
-    protected function provideQueryContainer(Container $container)
+    protected function addInvoiceFacade(Container $container): Container
     {
-        $container[static::QUERY_CONTAINER] = function (Container $container) {
-            return $container->getLocator()->creditmemo()->queryContainer();
-        };
-        return $container;
-    }
-
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return \Spryker\Zed\Kernel\Container
-     */
-    protected function provideCreditmemoFacade(Container $container)
-    {
-        $container[static::FACADE_INVOICE] = function (Container $container) {
-            return new InvoiceApiToInvoiceBridge($container->getLocator()->invoice()->facade());
-        };
-        return $container;
-    }
-
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return \Spryker\Zed\Kernel\Container
-     */
-    protected function provideProductFacade(Container $container)
-    {
-        $container[static::FACADE_PRODUCT] = function (Container $container) {
-            return new InvoiceApiToProductBridge($container->getLocator()->product()->facade());
+        $container[static::FACADE_CREDIT_MEMO] = static function (Container $container) {
+            return new InvoiceApiToInvoiceFacadeBridge(
+                $container->getLocator()->invoice()->facade()
+            );
         };
 
         return $container;

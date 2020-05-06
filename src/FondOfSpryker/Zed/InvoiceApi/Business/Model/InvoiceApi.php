@@ -2,71 +2,52 @@
 
 namespace FondOfSpryker\Zed\InvoiceApi\Business\Model;
 
-use FondOfSpryker\Zed\InvoiceApi\Business\Mapper\EntityMapperInterface;
 use FondOfSpryker\Zed\InvoiceApi\Business\Mapper\TransferMapperInterface;
-use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceInterface;
-use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToProductInterface;
-use FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiInterface;
+use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeInterface;
+use FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerInterface;
 use Generated\Shared\Transfer\ApiDataTransfer;
 use Generated\Shared\Transfer\ApiItemTransfer;
-use Generated\Shared\Transfer\InvoiceItemTransfer;
-use Generated\Shared\Transfer\InvoiceResponseTransfer;
-use Generated\Shared\Transfer\InvoiceTransfer;
-use Spryker\Zed\Api\Business\Exception\EntityNotFoundException;
-use Spryker\Zed\Availability\Persistence\AvailabilityQueryContainerInterface;
+use Spryker\Zed\Api\ApiConfig;
+use Spryker\Zed\Api\Business\Exception\EntityNotSavedException;
 
 class InvoiceApi implements InvoiceApiInterface
 {
     /**
-     * @var \FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiInterface
+     * @var \FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerInterface
      */
     protected $apiQueryContainer;
 
     /**
-     * @var \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceInterface
+     * @var \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeInterface
      */
     protected $invoiceFacade;
 
     /**
-     * @var \FondOfSpryker\Zed\InvoiceApi\Business\Model\TransferMapperInterface
+     * @var \FondOfSpryker\Zed\InvoiceApi\Business\Mapper\TransferMapperInterface
      */
     protected $transferMapper;
 
     /**
-     * @var \FondOfSpryker\Zed\InvoiceApi\Business\Model\EntityMapperInterface
-     */
-    protected $entityMapper;
-
-    /**
-     * @var \FondOfSpryker\Zed\InvoiceApi\Business\Model\InvoiceApiToProductInterface
-     */
-    protected $productFacade;
-
-    /**
      * InvoiceApi constructor.
      *
-     * @param \FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiInterface $apiQueryContainer
-     * @param \FondOfSpryker\Zed\InvoiceApi\Business\Model\EntityMapperInterface $entityMapper
-     * @param \FondOfSpryker\Zed\InvoiceApi\Business\Model\TransferMapperInterface $transferMapper
-     * @param \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceInterface $invoiceFacade
-     * @param \FondOfSpryker\Zed\InvoiceApi\Business\Model\InvoiceApiToProductInterface $productFacade
+     * @param \FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerInterface $apiQueryContainer
+     * @param \FondOfSpryker\Zed\InvoiceApi\Business\Mapper\TransferMapperInterface $transferMapper
+     * @param \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeInterface $invoiceFacade
      */
     public function __construct(
-        InvoiceApiToApiInterface $apiQueryContainer,
-        EntityMapperInterface $entityMapper,
+        InvoiceApiToApiQueryContainerInterface $apiQueryContainer,
         TransferMapperInterface $transferMapper,
-        InvoiceApiToInvoiceInterface $invoiceFacade,
-        InvoiceApiToProductInterface $productFacade
+        InvoiceApiToInvoiceFacadeInterface $invoiceFacade
     ) {
         $this->apiQueryContainer = $apiQueryContainer;
-        $this->invoiceFacade = $invoiceFacade;
-        $this->entityMapper = $entityMapper;
         $this->transferMapper = $transferMapper;
-        $this->productFacade = $productFacade;
+        $this->invoiceFacade = $invoiceFacade;
     }
 
     /**
      * @param \Generated\Shared\Transfer\ApiDataTransfer $apiDataTransfer
+     *
+     * @throws \Spryker\Zed\Api\Business\Exception\EntityNotSavedException
      *
      * @return \Generated\Shared\Transfer\ApiItemTransfer
      */
@@ -74,44 +55,24 @@ class InvoiceApi implements InvoiceApiInterface
     {
         $data = (array)$apiDataTransfer->getData();
 
-        $invoiceTransfer = new InvoiceTransfer();
-        $invoiceTransfer->fromArray($data, true);
+        $invoiceTransfer = $this->transferMapper->toTransfer($data);
 
-        $invoiceItemsCollection = [];
+        $invoiceResponseTransfer = $this->invoiceFacade->createInvoice(
+            $invoiceTransfer
+        );
 
-        if (!isset($data['items'])) {
-            $data['items'] = [];
-        }
-
-        foreach ($data['items'] as $invoiceItem) {
-            $invoiceItemsCollection[] = (new InvoiceItemTransfer())->fromArray($invoiceItem, true);
-        }
-
-        $invoiceResponseTransfer = $this->invoiceFacade->addInvoice($invoiceTransfer, $invoiceItemsCollection);
-
-        $invoiceTransfer = $this->getInvoiceFromResponse($invoiceResponseTransfer);
-
-        return $this->apiQueryContainer->createApiItem($invoiceTransfer, $invoiceTransfer->getIdInvoice());
-    }
-
-    /**
-     * @param \Generated\Shared\Transfer\InvoiceResponseTransfer $invoiceResponseTransfer
-     *
-     * @return \Generated\Shared\Transfer\InvoiceTransfer
-     */
-    protected function getInvoiceFromResponse(InvoiceResponseTransfer $invoiceResponseTransfer): InvoiceTransfer
-    {
         $invoiceTransfer = $invoiceResponseTransfer->getInvoiceTransfer();
 
-        if (!$invoiceTransfer) {
-            $errors = [];
-            foreach ($invoiceResponseTransfer->getErrors() as $error) {
-                $errors[] = $error->getMessage();
-            }
-
-            throw new EntityNotSavedException('Could not save creditmemo: ' . implode(',', $errors));
+        if ($invoiceTransfer === null || $invoiceResponseTransfer->getIsSuccess() === false) {
+            throw new EntityNotSavedException(
+                'Could not save invoice.',
+                ApiConfig::HTTP_CODE_INTERNAL_ERROR
+            );
         }
 
-        return $this->invoiceFacade->findInvoiceById($invoiceTransfer);
+        return $this->apiQueryContainer->createApiItem(
+            $invoiceTransfer,
+            $invoiceTransfer->getIdInvoice()
+        );
     }
 }
