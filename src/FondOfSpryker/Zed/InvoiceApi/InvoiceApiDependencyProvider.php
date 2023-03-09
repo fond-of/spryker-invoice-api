@@ -2,14 +2,21 @@
 
 namespace FondOfSpryker\Zed\InvoiceApi;
 
+use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToApiFacadeBridge;
 use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeBridge;
-use FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerBridge;
 use Spryker\Zed\Kernel\AbstractBundleDependencyProvider;
 use Spryker\Zed\Kernel\Container;
 
 class InvoiceApiDependencyProvider extends AbstractBundleDependencyProvider
 {
-    public const QUERY_CONTAINER_API = 'QUERY_CONTAINER_API';
+    /**
+     * @var string
+     */
+    public const FACADE_API = 'FACADE_API';
+
+    /**
+     * @var string
+     */
     public const FACADE_CREDIT_MEMO = 'FACADE_CREDIT_MEMO';
 
     /**
@@ -21,7 +28,7 @@ class InvoiceApiDependencyProvider extends AbstractBundleDependencyProvider
     {
         $container = parent::provideBusinessLayerDependencies($container);
 
-        $container = $this->addApiQueryContainer($container);
+        $container = $this->addApiFacade($container);
         $container = $this->addInvoiceFacade($container);
 
         return $container;
@@ -32,10 +39,10 @@ class InvoiceApiDependencyProvider extends AbstractBundleDependencyProvider
      *
      * @return \Spryker\Zed\Kernel\Container
      */
-    protected function addApiQueryContainer(Container $container): Container
+    protected function addApiFacade(Container $container): Container
     {
-        $container[static::QUERY_CONTAINER_API] = static function (Container $container) {
-            return new InvoiceApiToApiQueryContainerBridge($container->getLocator()->api()->queryContainer());
+        $container[static::FACADE_API] = static function (Container $container) {
+            return new InvoiceApiToApiFacadeBridge($container->getLocator()->api()->facade());
         };
 
         return $container;
@@ -50,7 +57,7 @@ class InvoiceApiDependencyProvider extends AbstractBundleDependencyProvider
     {
         $container[static::FACADE_CREDIT_MEMO] = static function (Container $container) {
             return new InvoiceApiToInvoiceFacadeBridge(
-                $container->getLocator()->invoice()->facade()
+                $container->getLocator()->invoice()->facade(),
             );
         };
 

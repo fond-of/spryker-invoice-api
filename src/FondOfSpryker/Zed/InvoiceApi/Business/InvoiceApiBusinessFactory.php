@@ -8,8 +8,8 @@ use FondOfSpryker\Zed\InvoiceApi\Business\Model\InvoiceApi;
 use FondOfSpryker\Zed\InvoiceApi\Business\Model\InvoiceApiInterface;
 use FondOfSpryker\Zed\InvoiceApi\Business\Model\Validator\InvoiceApiValidator;
 use FondOfSpryker\Zed\InvoiceApi\Business\Model\Validator\InvoiceApiValidatorInterface;
+use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToApiFacadeInterface;
 use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeInterface;
-use FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerInterface;
 use FondOfSpryker\Zed\InvoiceApi\InvoiceApiDependencyProvider;
 use Spryker\Zed\Kernel\Business\AbstractBusinessFactory;
 
@@ -24,9 +24,9 @@ class InvoiceApiBusinessFactory extends AbstractBusinessFactory
     public function createInvoiceApi(): InvoiceApiInterface
     {
         return new InvoiceApi(
-            $this->getApiQueryContainer(),
+            $this->getApiFacade(),
             $this->createTransferMapper(),
-            $this->getInvoiceFacade()
+            $this->getInvoiceFacade(),
         );
     }
 
@@ -47,11 +47,11 @@ class InvoiceApiBusinessFactory extends AbstractBusinessFactory
     }
 
     /**
-     * @return \FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerInterface
+     * @return \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToApiFacadeInterface
      */
-    protected function getApiQueryContainer(): InvoiceApiToApiQueryContainerInterface
+    protected function getApiFacade(): InvoiceApiToApiFacadeInterface
     {
-        return $this->getProvidedDependency(InvoiceApiDependencyProvider::QUERY_CONTAINER_API);
+        return $this->getProvidedDependency(InvoiceApiDependencyProvider::FACADE_API);
     }
 
     /**
