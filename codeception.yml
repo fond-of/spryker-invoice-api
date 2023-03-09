@@ -1,4 +1,4 @@
-namespace: fond-of-spryker/shipment-delivery-note-api
+namespace: fond-of-spryker/invoice-api
 
 suites:
   unit:
