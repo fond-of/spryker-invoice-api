@@ -3,8 +3,8 @@
 namespace FondOfSpryker\Zed\InvoiceApi\Business\Model;
 
 use FondOfSpryker\Zed\InvoiceApi\Business\Mapper\TransferMapperInterface;
+use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToApiFacadeInterface;
 use FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeInterface;
-use FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerInterface;
 use Generated\Shared\Transfer\ApiDataTransfer;
 use Generated\Shared\Transfer\ApiItemTransfer;
 use Spryker\Zed\Api\ApiConfig;
@@ -13,33 +13,31 @@ use Spryker\Zed\Api\Business\Exception\EntityNotSavedException;
 class InvoiceApi implements InvoiceApiInterface
 {
     /**
-     * @var \FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerInterface
+     * @var \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToApiFacadeInterface
      */
-    protected $apiQueryContainer;
+    protected InvoiceApiToApiFacadeInterface $apiFacade;
 
     /**
      * @var \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeInterface
      */
-    protected $invoiceFacade;
+    protected InvoiceApiToInvoiceFacadeInterface $invoiceFacade;
 
     /**
      * @var \FondOfSpryker\Zed\InvoiceApi\Business\Mapper\TransferMapperInterface
      */
-    protected $transferMapper;
+    protected TransferMapperInterface $transferMapper;
 
     /**
-     * InvoiceApi constructor.
-     *
-     * @param \FondOfSpryker\Zed\InvoiceApi\Dependency\QueryContainer\InvoiceApiToApiQueryContainerInterface $apiQueryContainer
+     * @param \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToApiFacadeInterface $apiFacade
      * @param \FondOfSpryker\Zed\InvoiceApi\Business\Mapper\TransferMapperInterface $transferMapper
      * @param \FondOfSpryker\Zed\InvoiceApi\Dependency\Facade\InvoiceApiToInvoiceFacadeInterface $invoiceFacade
      */
     public function __construct(
-        InvoiceApiToApiQueryContainerInterface $apiQueryContainer,
+        InvoiceApiToApiFacadeInterface $apiFacade,
         TransferMapperInterface $transferMapper,
         InvoiceApiToInvoiceFacadeInterface $invoiceFacade
     ) {
-        $this->apiQueryContainer = $apiQueryContainer;
+        $this->apiFacade = $apiFacade;
         $this->transferMapper = $transferMapper;
         $this->invoiceFacade = $invoiceFacade;
     }
@@ -53,12 +51,12 @@ class InvoiceApi implements InvoiceApiInterface
      */
     public function add(ApiDataTransfer $apiDataTransfer): ApiItemTransfer
     {
-        $data = (array)$apiDataTransfer->getData();
+        $data = $apiDataTransfer->getData();
 
         $invoiceTransfer = $this->transferMapper->toTransfer($data);
 
         $invoiceResponseTransfer = $this->invoiceFacade->createInvoice(
-            $invoiceTransfer
+            $invoiceTransfer,
         );
 
         $invoiceTransfer = $invoiceResponseTransfer->getInvoiceTransfer();
@@ -66,13 +64,13 @@ class InvoiceApi implements InvoiceApiInterface
         if ($invoiceTransfer === null || $invoiceResponseTransfer->getIsSuccess() === false) {
             throw new EntityNotSavedException(
                 'Could not save invoice.',
-                ApiConfig::HTTP_CODE_INTERNAL_ERROR
+                ApiConfig::HTTP_CODE_INTERNAL_ERROR,
             );
         }
 
-        return $this->apiQueryContainer->createApiItem(
+        return $this->apiFacade->createApiItem(
             $invoiceTransfer,
-            $invoiceTransfer->getIdInvoice()
+            $invoiceTransfer->getIdInvoice(),
         );
     }
 }
